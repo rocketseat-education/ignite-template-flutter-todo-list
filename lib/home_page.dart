@@ -10,7 +10,6 @@ class _HomePageState extends State<HomePage> {
 
   final _toDoItemTitleEditingController = TextEditingController();
   final _toDoItemList = <ToDoItem>[];
-  final _doneItemList = <ToDoItem>[];
 
   @override
   Widget build(BuildContext context) {
@@ -75,13 +74,6 @@ class _HomePageState extends State<HomePage> {
                       onCompleteItem: () {
                         setState(() {
                           _toDoItemList.remove(item);
-
-                          _doneItemList.add(
-                            ToDoItem(
-                              title: item.title,
-                              isDone: true,
-                            ),
-                          );
                         });
                       },
                     );
