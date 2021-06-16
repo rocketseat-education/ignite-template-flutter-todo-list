@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final _toDoController = TextEditingController();
-  final _toDo = [];
-  bool _isSelected = false;
+  final _formKey = GlobalKey<FormState>();
+  final _toDoItemTitle = TextEditingController();
+  final toDoItemList = [];
+  bool isDone = false;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Expanded(
                       child: TextFormField(
-                        controller: _toDoController,
+                        controller: _toDoItemTitle,
                       ),
                     ),
                     SizedBox(width: 20),
@@ -41,12 +41,12 @@ class _HomePageState extends State<HomePage> {
                         size: 36,
                       ),
                       onPressed: () {
-                        if (_toDoController.text.isEmpty) return;
+                        if (_toDoItemTitle.text.isEmpty) return;
                         if (_formKey.currentState!.validate()) {
                           setState(() {
-                            _toDo.add(_toDoController.text);
+                            toDoItemList.add(_toDoItemTitle.text);
                           });
-                          _toDoController.clear();
+                          _toDoItemTitle.clear();
                         }
                       },
                     ),
@@ -57,38 +57,44 @@ class _HomePageState extends State<HomePage> {
                 height: 500,
                 padding: const EdgeInsets.only(bottom: 32),
                 child: ListView.builder(
-                  itemCount: _toDo.length,
+                  itemCount: toDoItemList.length,
                   itemBuilder: (context, index) {
-                    final item = _toDo[index];
+                    final item = toDoItemList[index];
                     return Dismissible(
                       key: Key(item),
                       onDismissed: (direction) {
-                        setState(() {
-                          _toDo.removeAt(index);
-                        });
+                        if (direction == DismissDirection.startToEnd) {
+                          debugPrint('done');
+                        } else {
+                          setState(() {
+                            toDoItemList.removeAt(index);
+                          });
+                        }
                       },
                       background: Container(
+                        color: Colors.green,
+                        alignment: Alignment(-0.9, 0.0),
+                        child: Icon(Icons.done, color: Colors.white),
+                      ),
+                      secondaryBackground: Container(
                         color: Colors.red,
-                        child: Align(
-                          alignment: Alignment(-0.9, 0.0),
-                          child: Icon(Icons.delete, color: Colors.white),
-                        ),
+                        alignment: Alignment(0.9, 0.0),
+                        child: Icon(Icons.delete, color: Colors.white),
                       ),
                       child: CheckboxListTile(
                         controlAffinity: ListTileControlAffinity.leading,
                         title: Text(
                           item,
                           style: TextStyle(
-                            fontStyle: _isSelected ? FontStyle.italic : null,
-                            decoration: _isSelected 
-                                ? TextDecoration.lineThrough 
-                                : null,
+                            fontStyle: isDone ? FontStyle.italic : null,
+                            decoration:
+                                isDone ? TextDecoration.lineThrough : null,
                           ),
                         ),
-                        value: _isSelected,
+                        value: isDone,
                         onChanged: (value) {
                           setState(() {
-                            _isSelected = value!;
+                            isDone = value!;
                           });
                         },
                       ),
