@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -8,9 +7,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _formKey = GlobalKey<FormState>();
-  final _toDoItemTitle = TextEditingController();
-  final toDoItemList = [];
-  bool isDone = false;
+
+  final _toDoItemTitleEditingController = TextEditingController();
+  final _toDoItemList = <ToDoItem>[];
+  final _doneItemList = <ToDoItem>[];
 
   @override
   Widget build(BuildContext context) {
@@ -30,23 +30,27 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Expanded(
                       child: TextFormField(
-                        controller: _toDoItemTitle,
+                        controller: _toDoItemTitleEditingController,
                       ),
                     ),
                     SizedBox(width: 20),
                     IconButton(
                       icon: Icon(
                         Icons.add,
-                        color: Colors.purple,
-                        size: 36,
+                        color: Colors.blue,
+                        size: 24,
                       ),
                       onPressed: () {
-                        if (_toDoItemTitle.text.isEmpty) return;
-                        if (_formKey.currentState!.validate()) {
+                        if (_toDoItemTitleEditingController.text.isNotEmpty) {
                           setState(() {
-                            toDoItemList.add(_toDoItemTitle.text);
+                            _toDoItemList.add(
+                              ToDoItem(
+                                title: _toDoItemTitleEditingController.text,
+                              ),
+                            );
                           });
-                          _toDoItemTitle.clear();
+
+                          _toDoItemTitleEditingController.clear();
                         }
                       },
                     ),
@@ -57,47 +61,29 @@ class _HomePageState extends State<HomePage> {
                 height: 500,
                 padding: const EdgeInsets.only(bottom: 32),
                 child: ListView.builder(
-                  itemCount: toDoItemList.length,
+                  itemCount: _toDoItemList.length,
                   itemBuilder: (context, index) {
-                    final item = toDoItemList[index];
-                    return Dismissible(
-                      key: Key(item),
-                      onDismissed: (direction) {
-                        if (direction == DismissDirection.startToEnd) {
-                          debugPrint('done');
-                        } else {
-                          setState(() {
-                            toDoItemList.removeAt(index);
-                          });
-                        }
+                    final item = _toDoItemList[index];
+
+                    return ToDoItemListTile(
+                      item: item,
+                      onRemoveItem: () {
+                        setState(() {
+                          _toDoItemList.remove(item);
+                        });
                       },
-                      background: Container(
-                        color: Colors.green,
-                        alignment: Alignment(-0.9, 0.0),
-                        child: Icon(Icons.done, color: Colors.white),
-                      ),
-                      secondaryBackground: Container(
-                        color: Colors.red,
-                        alignment: Alignment(0.9, 0.0),
-                        child: Icon(Icons.delete, color: Colors.white),
-                      ),
-                      child: CheckboxListTile(
-                        controlAffinity: ListTileControlAffinity.leading,
-                        title: Text(
-                          item,
-                          style: TextStyle(
-                            fontStyle: isDone ? FontStyle.italic : null,
-                            decoration:
-                                isDone ? TextDecoration.lineThrough : null,
-                          ),
-                        ),
-                        value: isDone,
-                        onChanged: (value) {
-                          setState(() {
-                            isDone = value!;
-                          });
-                        },
-                      ),
+                      onCompleteItem: () {
+                        setState(() {
+                          _toDoItemList.remove(item);
+
+                          _doneItemList.add(
+                            ToDoItem(
+                              title: item.title,
+                              isDone: true,
+                            ),
+                          );
+                        });
+                      },
                     );
                   },
                 ),
@@ -108,4 +94,52 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+class ToDoItemListTile extends StatelessWidget {
+  ToDoItemListTile({
+    Key? key,
+    required this.item,
+    required this.onRemoveItem,
+    required this.onCompleteItem,
+  }) : super(key: key);
+
+  final ToDoItem item;
+  final VoidCallback onRemoveItem;
+  final VoidCallback onCompleteItem;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dismissible(
+      key: UniqueKey(),
+      onDismissed: (_) => onRemoveItem(),
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment(-0.9, 0.0),
+        child: Icon(Icons.delete, color: Colors.white),
+      ),
+      child: CheckboxListTile(
+        controlAffinity: ListTileControlAffinity.leading,
+        title: Text(
+          item.title,
+          style: TextStyle(
+            fontStyle: item.isDone ? FontStyle.italic : null,
+            decoration: item.isDone ? TextDecoration.lineThrough : null,
+          ),
+        ),
+        value: item.isDone,
+        onChanged: (_) => onCompleteItem(),
+      ),
+    );
+  }
+}
+
+class ToDoItem {
+  ToDoItem({
+    required this.title,
+    this.isDone = false,
+  });
+
+  final String title;
+  final bool isDone;
 }
