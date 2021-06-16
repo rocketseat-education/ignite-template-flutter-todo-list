@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'home_page.dart';
+import 'app_widget.dart';
 
 void main() {
   runApp(
-    HomePage(),
+    AppWidget(),
   );
 }
