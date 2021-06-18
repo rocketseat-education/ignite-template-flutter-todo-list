@@ -4,88 +4,81 @@ import '../shared/models/todo_item.dart';
 import 'components/todo_item_list_tile.dart';
 
 class TaskScreen extends StatefulWidget {
+  const TaskScreen({
+    Key? key,
+    required this.itemList,
+    required this.onAddItem,
+    required this.onCompleteItem,
+    required this.onRemoveItem,
+  }) : super(key: key);
+
+  final List<ToDoItem> itemList;
+  final ValueChanged<ToDoItem> onCompleteItem;
+  final ValueChanged<String> onAddItem;
+  final ValueChanged<ToDoItem> onRemoveItem;
 
   @override
   _TaskScreenState createState() => _TaskScreenState();
 }
 
 class _TaskScreenState extends State<TaskScreen> {
-
   final _formKey = GlobalKey<FormState>();
   final _toDoItemTitleEditingController = TextEditingController();
-  final _toDoItemList = <ToDoItem>[];
-  final _doneItemList = <ToDoItem>[];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _toDoItemTitleEditingController,
-                    ),
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(height: 24),
+          Text(
+            'Pendentes',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.blue, fontSize: 24),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _toDoItemTitleEditingController,
                   ),
-                  SizedBox(width: 20),
-                  IconButton(
-                    icon: Icon(
-                      Icons.add,
-                      color: Colors.blue,
-                      size: 24,
-                    ),
-                    onPressed: () {
-                      if (_toDoItemTitleEditingController.text.isNotEmpty) {
-                        setState(() {
-                          _toDoItemList.add(
-                            ToDoItem(
-                              title: _toDoItemTitleEditingController.text,
-                            ),
-                          );
-                        });
-                        _toDoItemTitleEditingController.clear();
-                      }
-                    },
+                ),
+                SizedBox(width: 20),
+                IconButton(
+                  icon: Icon(
+                    Icons.add,
+                    color: Colors.blue,
+                    size: 24,
                   ),
-                ],
-              ),
+                  onPressed: () {
+                    if (_toDoItemTitleEditingController.text.isNotEmpty) {
+                      widget.onAddItem(_toDoItemTitleEditingController.text);
+
+                      _toDoItemTitleEditingController.clear();
+                    }
+                  },
+                ),
+              ],
             ),
-            Container(
-              height: 500,
-              padding: const EdgeInsets.only(bottom: 32),
-              child: ListView.builder(
-                itemCount: _toDoItemList.length,
-                itemBuilder: (context, index) {
-                  final item = _toDoItemList[index];
-                  return ToDoItemListTile(
-                    item: item,
-                    onRemoveItem: () {
-                      setState(() {
-                        _toDoItemList.remove(item);
-                      });
-                    },
-                    onCompleteItem: () {
-                      setState(() {
-                        _toDoItemList.remove(item);
-                        _doneItemList.add(
-                          ToDoItem(
-                            title: item.title,
-                            isDone: true,
-                          ),
-                        );
-                      });
-                    },
-                  );
-                },
-              ),
+          ),
+          Flexible(
+            child: ListView.builder(
+              itemCount: widget.itemList.length,
+              itemBuilder: (context, index) {
+                final item = widget.itemList[index];
+                return ToDoItemListTile(
+                  item: item,
+                  onRemoveItem: () => widget.onRemoveItem(item),
+                  onChangeItem: () => widget.onCompleteItem(item),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
