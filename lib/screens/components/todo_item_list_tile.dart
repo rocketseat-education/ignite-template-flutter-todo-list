@@ -7,12 +7,12 @@ class ToDoItemListTile extends StatelessWidget {
     Key? key,
     required this.item,
     required this.onRemoveItem,
-    required this.onCompleteItem,
+    required this.onChangeItem,
   }) : super(key: key);
 
   final ToDoItem item;
   final VoidCallback onRemoveItem;
-  final VoidCallback onCompleteItem;
+  final VoidCallback onChangeItem;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class ToDoItemListTile extends StatelessWidget {
           ),
         ),
         value: item.isDone,
-        onChanged: (_) => onCompleteItem(),
+        onChanged: (_) => onChangeItem(),
       ),
     );
   }
