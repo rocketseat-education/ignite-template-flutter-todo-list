@@ -9,7 +9,9 @@ class AppWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Ignite Flutter | ToDo App',
-      home: HomePage(),
+      home: SafeArea(
+        child: HomePage(),
+      ),
     );
   }
 }
